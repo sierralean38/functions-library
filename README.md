@@ -1,13 +1,10 @@
-# Functions Library
-
-> **Diego Sierra Alean — Arquitecto de Soluciones**  
-> *AI para impulsar el valor de negocio en las organizaciones*
+# Functions tools Library - Agrega valor a tu Agente de inteligencia Artificial por medio de REST API en Oracle Cloud Functions
 
 ---
 
-Colección de Oracle Functions listas para desplegar, diseñadas para potenciar agentes de IA con capacidades reales: interpretación de código con Python, generación de reportes en PDF y conversión de documentos.
+Ejemplo de tools realizadas en Oracle Functions listas para desplegar, diseñadas para potenciar agentes de IA con capacidades reales.
 
-Cada función vive en su propia carpeta con todo lo necesario para desplegarla en Oracle Cloud Infrastructure (OCI) sin fricción.
+Cada función vive en su propia carpeta con todo lo necesario para desplegarla en Oracle Cloud Infrastructure (OCI).
 
 ---
 
@@ -48,12 +45,11 @@ Estas funciones se publican con fines **educativos y de referencia**. Son ejempl
 **Al usar, copiar, modificar o desplegar cualquier código de este repositorio, aceptas expresamente que:**
 
 - El uso es bajo tu **exclusiva responsabilidad**.
-- **Diego Sierra Alean no asume ninguna responsabilidad** por daños directos, indirectos, incidentales, especiales o consecuentes derivados del uso, mal uso o imposibilidad de uso de este código.
+- **No se asume ninguna responsabilidad** por daños directos, indirectos, incidentales, especiales o consecuentes derivados del uso, mal uso o imposibilidad de uso de este código.
 - No se garantiza que el código sea adecuado para entornos productivos sin una revisión y adaptación previa a tus requerimientos específicos de seguridad, rendimiento y compliance.
 - Es tu responsabilidad cumplir con los términos de servicio de OCI, OpenAI y cualquier otro proveedor tercero involucrado.
 - El autor no se hace responsable de costos de infraestructura, pérdida de datos ni ningún otro perjuicio derivado del despliegue de estas funciones.
 
-> *"El conocimiento compartido crece. Úsalo con criterio y responsabilidad."*
 
 ---
 
