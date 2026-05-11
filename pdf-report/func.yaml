@@ -1,0 +1,10 @@
+schema_version: 20180708
+name: pdf-report-function
+version: 2.0.15
+runtime: docker
+entrypoint: python func.py
+type: sync
+
+config:
+  BUCKET_NAME: "ReportesGenerados"
+  OCI_REGION: "uk-london-1"

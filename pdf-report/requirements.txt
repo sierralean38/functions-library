@@ -1,0 +1,6 @@
+reportlab
+matplotlib
+pillow
+pandas
+oci
+fdk

@@ -1,0 +1,100 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Code Interpreter Tool",
+    "version": "1.0.0",
+    "description": "Ejecuta código Python con IA sobre datos enviados por el agente. Puede analizar información, generar visualizaciones y retornar archivos como Excel, CSV, Word, PowerPoint o PDF almacenados en OCI Object Storage."
+  },
+  "servers": [
+    {
+      "url": "https://<gateway-id>.apigateway.<region>.oci.customer-oci.com/<deployment-path>"
+    }
+  ],
+  "paths": {
+    "/code-interpreter": {
+      "post": {
+        "summary": "Ejecutar análisis de datos o generación de archivos con Python",
+        "description": "Recibe una instrucción en lenguaje natural y opcionalmente archivos desde OCI Object Storage o en base64. Ejecuta código Python con IA y retorna el resultado textual junto con los archivos generados como URLs descargables (PAR de OCI Object Storage).",
+        "operationId": "runCodeInterpreter",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["prompt"],
+                "properties": {
+                  "prompt": {
+                    "type": "string",
+                    "description": "Instrucción en lenguaje natural sobre qué analizar o generar."
+                  },
+                  "instruction": {
+                    "type": "string",
+                    "description": "Comportamiento base del intérprete de código. Si no se envía, usa un rol genérico de analista de datos.",
+                    "default": "Eres un analista de datos experto. Escribe y ejecuta código Python para responder la solicitud."
+                  },
+                  "memory_gb": {
+                    "type": "string",
+                    "description": "Memoria asignada al contenedor de ejecución Python.",
+                    "enum": ["1g", "4g", "16g", "64g"],
+                    "default": "4g"
+                  },
+                  "input_objects": {
+                    "type": "array",
+                    "description": "Lista de archivos a descargar desde OCI Object Storage antes de ejecutar el análisis.",
+                    "items": {
+                      "type": "object",
+                      "required": ["object_name"],
+                      "properties": {
+                        "object_name": { "type": "string" },
+                        "bucket": { "type": "string" },
+                        "namespace": { "type": "string" }
+                      }
+                    }
+                  },
+                  "file_base64": {
+                    "type": "string",
+                    "description": "Contenido de un archivo de entrada codificado en base64."
+                  },
+                  "file_name": {
+                    "type": "string",
+                    "description": "Nombre del archivo base64 incluyendo extensión.",
+                    "default": "data.csv"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Análisis completado exitosamente",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "result": { "type": "string" },
+                    "output_files": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "file_name": { "type": "string" },
+                          "url": { "type": "string" },
+                          "data_b64": { "type": "string" }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": { "description": "Request inválido — JSON malformado o campo prompt ausente" },
+          "500": { "description": "Error interno" }
+        }
+      }
+    }
+  }
+}
