@@ -1,0 +1,13 @@
+schema_version: 20180708
+name: oci-function-generator-tool
+version: 0.0.1
+runtime: docker
+memory: 512
+timeout: 300
+config:
+  LOG_LEVEL: INFO
+  OCI_GENAI_REGION: us-chicago-1
+  OCI_GENAI_MODEL: openai.gpt-oss-120b
+  OUTPUT_PREFIX: generated-functions
+  PAR_TTL_SECONDS: "86400"
+  MAX_REFERENCE_OBJECT_BYTES: "26214400"

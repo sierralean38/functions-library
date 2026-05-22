@@ -15,6 +15,7 @@ Cada función vive en su propia carpeta con todo lo necesario para desplegarla e
 | [`code-interpreter/`](./code-interpreter) | `code-interpreter-tool` | Ejecuta código Python con IA sobre datos enviados por el agente. Genera archivos Excel, Word, PDF, imágenes y más, almacenándolos en OCI Object Storage y retornando URLs descargables (PAR). |
 | [`image-to-pdf/`](./image-to-pdf) | `pdf-to-image-fn` | Convierte cada página de un PDF almacenado en OCI Object Storage a imágenes JPG, retornándolas en base64 y subiéndolas al bucket. |
 | [`pdf-report/`](./pdf-report) | `pdf-report-function` | Genera reportes PDF a partir de un JSON estructurado con elementos (títulos, párrafos, tablas y gráficos) y los publica en OCI Object Storage con un PAR descargable. |
+| [`tool-generator/`](./tool-generator) | `oci-function-generator-tool` | Genera paquetes completos de OCI Functions desplegables a partir de un requerimiento en lenguaje natural usando OCI Generative AI Code Interpreter. Almacena los artefactos generados en OCI Object Storage y retorna URLs descargables (PAR). |
 
 ---
 
@@ -25,7 +26,10 @@ Cada función vive en su propia carpeta con todo lo necesario para desplegarla e
 ├── func.py          # Lógica de la función
 ├── func.yaml        # Configuración para Oracle Functions
 ├── Dockerfile       # Imagen de contenedor
-└── requirements.txt # Dependencias Python
+├── requirements.txt # Dependencias Python
+├── openapi.json     # Contrato OpenAPI 3.0 para Agent Factory
+└── samples/
+    └── request.json # Ejemplo de payload de invocación
 ```
 
 Sigue la documentación oficial de [Oracle Functions](https://docs.oracle.com/en-us/iaas/Content/Functions/home.htm) para desplegar cada una en tu tenancy de OCI.
