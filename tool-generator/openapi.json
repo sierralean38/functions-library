@@ -1,0 +1,355 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "OCI Function Generator Tool",
+    "version": "1.0.0",
+    "description": "Generates a complete deployable OCI Function project from a natural-language requirement by using OCI Generative AI Code Interpreter and stores generated artifacts in OCI Object Storage."
+  },
+  "servers": [
+    {
+      "url": "https://<gateway-id>.apigateway.<region>.oci.customer-oci.com/<deployment-path>"
+    }
+  ],
+  "security": [
+    {
+      "ApiKeyAuth": []
+    }
+  ],
+  "paths": {
+    "/generate-oci-function": {
+      "post": {
+        "operationId": "generateOciFunctionPackage",
+        "summary": "Generate a deployable OCI Function package",
+        "description": "Receives a natural-language requirement and returns generated OCI Function artifacts, including source code, configuration, OpenAPI contract, samples, validation report, and a packaged ZIP.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GenerateFunctionRequest"
+              },
+              "examples": {
+                "basic": {
+                  "summary": "Generate a REST tool function",
+                  "value": {
+                    "requirement": "Create a Python OCI Function that receives a customer id and date range, validates the input, calls a downstream REST API through a configured endpoint, and returns a normalized JSON usage summary.",
+                    "function_name": "customer-usage-summary",
+                    "operation_id": "summarizeCustomerUsage",
+                    "oci_integrations": [
+                      "object_storage"
+                    ],
+                    "environment_variables": [
+                      {
+                        "name": "DOWNSTREAM_API_URL",
+                        "description": "Base URL for the downstream usage API.",
+                        "required": true,
+                        "sensitive": false
+                      },
+                      {
+                        "name": "DOWNSTREAM_API_TOKEN",
+                        "description": "Token used to call the downstream usage API.",
+                        "required": true,
+                        "sensitive": true
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Generation completed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GenerateFunctionResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request or user-correctable generation input",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal generation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "ApiKeyAuth": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "x-api-key"
+      }
+    },
+    "schemas": {
+      "GenerateFunctionRequest": {
+        "type": "object",
+        "required": [
+          "requirement"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "requirement": {
+            "type": "string",
+            "minLength": 20,
+            "maxLength": 8000,
+            "description": "Natural-language description of the OCI Function to generate."
+          },
+          "function_name": {
+            "type": "string",
+            "description": "Optional generated function name. It will be normalized to a safe slug."
+          },
+          "operation_id": {
+            "type": "string",
+            "description": "Optional lower-camel OpenAPI operationId for the generated function."
+          },
+          "package_name": {
+            "type": "string",
+            "description": "Optional package folder and ZIP base name."
+          },
+          "runtime": {
+            "type": "string",
+            "enum": [
+              "python3.11"
+            ],
+            "default": "python3.11"
+          },
+          "memory_mb": {
+            "type": "integer",
+            "minimum": 128,
+            "maximum": 2048,
+            "default": 512
+          },
+          "timeout_seconds": {
+            "type": "integer",
+            "minimum": 30,
+            "maximum": 300,
+            "default": 120
+          },
+          "expose_as_rest_tool": {
+            "type": "boolean",
+            "default": true
+          },
+          "include_tests": {
+            "type": "boolean",
+            "default": true
+          },
+          "include_openapi": {
+            "type": "boolean",
+            "default": true
+          },
+          "code_interpreter_memory": {
+            "type": "string",
+            "enum": [
+              "1g",
+              "4g",
+              "16g",
+              "64g"
+            ],
+            "default": "4g"
+          },
+          "output_language": {
+            "type": "string",
+            "enum": [
+              "es",
+              "en"
+            ],
+            "default": "es"
+          },
+          "oci_integrations": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Optional OCI services the generated function should use, such as object_storage, streaming, queue, vault, or generative_ai."
+          },
+          "environment_variables": {
+            "type": "array",
+            "maxItems": 30,
+            "items": {
+              "$ref": "#/components/schemas/EnvironmentVariableSpec"
+            }
+          },
+          "reference_objects": {
+            "type": "array",
+            "maxItems": 5,
+            "items": {
+              "$ref": "#/components/schemas/ReferenceObject"
+            },
+            "description": "Optional reference files already stored in Object Storage. They are passed to Code Interpreter as context."
+          },
+          "additional_instructions": {
+            "type": "string",
+            "maxLength": 4000
+          }
+        }
+      },
+      "EnvironmentVariableSpec": {
+        "type": "object",
+        "required": [
+          "name"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "name": {
+            "type": "string",
+            "pattern": "^[A-Z][A-Z0-9_]{1,63}$"
+          },
+          "description": {
+            "type": "string",
+            "maxLength": 500
+          },
+          "required": {
+            "type": "boolean",
+            "default": true
+          },
+          "sensitive": {
+            "type": "boolean",
+            "default": false
+          }
+        }
+      },
+      "ReferenceObject": {
+        "type": "object",
+        "required": [
+          "object_name"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "object_name": {
+            "type": "string",
+            "maxLength": 1024
+          },
+          "bucket": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          }
+        }
+      },
+      "GenerateFunctionResponse": {
+        "type": "object",
+        "required": [
+          "status",
+          "request_id",
+          "function_name",
+          "operation_id",
+          "package_name",
+          "artifacts"
+        ],
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "succeeded"
+            ]
+          },
+          "request_id": {
+            "type": "string"
+          },
+          "function_name": {
+            "type": "string"
+          },
+          "operation_id": {
+            "type": "string"
+          },
+          "package_name": {
+            "type": "string"
+          },
+          "result": {
+            "type": "string"
+          },
+          "generation_summary": {
+            "type": "object",
+            "description": "Parsed JSON summary returned by the generator. If the model returned non-JSON text, the function wraps it in this object and adds a warning.",
+            "additionalProperties": true
+          },
+          "package": {
+            "type": "object",
+            "nullable": true,
+            "properties": {
+              "file_name": { "type": "string" },
+              "object_name": { "type": "string" },
+              "content_type": { "type": "string" },
+              "size_bytes": { "type": "integer" },
+              "url": { "type": "string" },
+              "url_expires_at": { "type": "string" },
+              "data_base64": { "type": "string" }
+            }
+          },
+          "artifacts": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Artifact"
+            }
+          },
+          "warnings": {
+            "type": "array",
+            "items": { "type": "string" }
+          }
+        }
+      },
+      "Artifact": {
+        "type": "object",
+        "required": [
+          "file_name",
+          "object_name",
+          "content_type",
+          "size_bytes"
+        ],
+        "properties": {
+          "file_name": { "type": "string" },
+          "object_name": { "type": "string" },
+          "content_type": { "type": "string" },
+          "size_bytes": { "type": "integer" },
+          "url": { "type": "string" },
+          "url_expires_at": { "type": "string" },
+          "data_base64": { "type": "string" }
+        }
+      },
+      "ErrorResponse": {
+        "type": "object",
+        "required": [
+          "status",
+          "error"
+        ],
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": ["failed"]
+          },
+          "request_id": { "type": "string" },
+          "error": {
+            "type": "object",
+            "required": ["code", "message"],
+            "properties": {
+              "code": { "type": "string" },
+              "message": { "type": "string" }
+            }
+          }
+        }
+      }
+    }
+  }
+}

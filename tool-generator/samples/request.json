@@ -1,0 +1,31 @@
+{
+  "requirement": "Create a Python OCI Function that receives a customer_id and a billing period, validates both fields, reads a JSON usage summary from Object Storage, computes total usage by service, and returns a deterministic JSON response with totals and warnings for missing services.",
+  "function_name": "customer-usage-analyzer",
+  "operation_id": "analyzeCustomerUsage",
+  "runtime": "python3.11",
+  "memory_mb": 512,
+  "timeout_seconds": 120,
+  "expose_as_rest_tool": true,
+  "include_tests": true,
+  "include_openapi": true,
+  "code_interpreter_memory": "4g",
+  "output_language": "es",
+  "oci_integrations": [
+    "object_storage"
+  ],
+  "environment_variables": [
+    {
+      "name": "OBJECT_STORAGE_BUCKET",
+      "description": "Bucket containing usage summaries.",
+      "required": true,
+      "sensitive": false
+    },
+    {
+      "name": "OBJECT_STORAGE_NAMESPACE",
+      "description": "Object Storage namespace. Can be discovered if omitted in generated code.",
+      "required": false,
+      "sensitive": false
+    }
+  ],
+  "additional_instructions": "Return Spanish README text. Keep the generated function single-purpose and do not create deployment automation that mutates OCI resources directly."
+}
